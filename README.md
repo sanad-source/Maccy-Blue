@@ -22,21 +22,35 @@
 
 ---
 
-## What Makes Maccy Blue Different
+## Improvements & Technical Benefits
 
-### 1. Reliable Image Pasting
-- **Dual Synthesis (`public.png` + `public.tiff`)**: When copying older images back to the system pasteboard, both Cocoa-native (Pages, Keynote, Preview) and Electron/Chromium (Slack, Discord, VS Code) formats are synthesized.
-- **Metadata Preservation**: Items containing mixed text/OCR metadata keep their underlying image binary when formatting is stripped.
+### 1. Dual-Representation Image Synthesis (`public.png` + `public.tiff`)
+- **Problem**: Upstream Maccy only restored whichever single format was captured. If an image only had TIFF, Chromium/Electron apps (Slack, Discord, VS Code, Notion) failed to paste. If it only had PNG, Apple native Cocoa apps (Pages, Keynote, Preview) rejected it.
+- **Benefit**: Universal pasting compatibility. Maccy Blue generates both `public.png` and `public.tiff` representations simultaneously on the pasteboard when restoring image history items.
 
-### 2. Aggressive Memory Optimization
-- **Zero-Allocation Type Checks**: Scans pasteboard type descriptors instead of decoding full `NSImage` bitmaps during list rendering and search.
-- **Header-Only Dimensions**: Parses pixel dimensions via ImageIO metadata (`CGImageSourceCopyPropertiesAtIndex`) without allocating decoded bitmap buffers.
-- **External Storage**: Offloads large image payloads via SwiftData `@Attribute(.externalStorage)` to prevent SQLite row cache bloat.
-- **Eviction on Close**: Triggers `cleanupImages()` when the popup dismisses to flush decoded thumbnails from RAM.
+### 2. Multi-Type Format Stripping
+- **Problem**: Web browsers copy images with accompanying text metadata (alt text, source URL). Upstream Maccy's `clearFormatting()` dropped image binaries if text was present.
+- **Benefit**: Retains image payloads when using "Paste without formatting" on web-copied clips.
 
-### 3. Native Blue Identity
-- **Feather Emblem App Icon**: Uses the iconic menu bar quill/feather emblem on an Apple royal blue squircle across all 10 resolutions (16px to 1024px).
-- **Status Bar Theme**: Added `.maccyBlue` native menu bar icon.
+### 3. Zero-Allocation Type Checks (`hasImageContent`)
+- **Problem**: Upstream checked `hasImage` via `item.image != nil`. This allocated and decoded a full `NSImage` bitmap into RAM for every item during list rendering, search filtering, and scrolling.
+- **Benefit**: Zero bitmap decompression during search and scroll. Only checks lightweight pasteboard string identifiers (`public.png`, etc.).
+
+### 4. Header-Only Metadata Extraction (`CGImageSource`)
+- **Problem**: Querying image dimensions in upstream required instantiating the full bitmap in memory.
+- **Benefit**: Reads image width and height directly from file headers via ImageIO (`CGImageSourceCopyPropertiesAtIndex`) in microseconds with zero pixel buffer allocation.
+
+### 5. External SQLite Offloading (`@Attribute(.externalStorage)`)
+- **Problem**: Upstream stored large image blobs inline inside the SQLite database, causing SQLite page caches to blow up RAM during text history queries.
+- **Benefit**: Stores image binaries outside SQLite tables on disk. Keeps SQLite pages compact, speeding up text queries and app launch time.
+
+### 6. Popup Dismissal RAM Eviction (`cleanupImages()`)
+- **Problem**: Decoded thumbnail bitmaps accumulated in memory and lingered indefinitely after the menu was closed.
+- **Benefit**: Closes popup $\rightarrow$ immediately flushes all decoded thumbnail buffers from memory. RAM returns to baseline (~30–50MB).
+
+### 7. Unified Feather Iconography
+- **Problem**: Upstream had disconnected branding (lightbulb app icon vs. feather menu bar icon) and a legacy `AppIcon.icon` bundle that overrode custom iconsets in Release builds.
+- **Benefit**: Purged conflicting Icon Composer bundle. Unified menu bar, Dock, Cmd+Tab switcher, and Finder around the feather emblem on royal blue across all 10 macOS resolutions (16px to 1024px).
 
 ---
 
