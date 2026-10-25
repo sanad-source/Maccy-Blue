@@ -115,7 +115,7 @@ struct LargeTextView: NSViewRepresentable {
 
     let scrollView = NSScrollView()
     scrollView.documentView = textView
-    scrollView.hasVerticalScroller = true
+    scrollView.hasVerticalScroller = false
     scrollView.hasHorizontalScroller = false
     scrollView.autohidesScrollers = true
     scrollView.borderType = .noBorder

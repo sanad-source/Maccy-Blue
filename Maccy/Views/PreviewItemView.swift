@@ -57,11 +57,12 @@ struct PreviewItemView: View {
           LargeTextView(text: item.previewText.string)
             .id("textpreview-\(item.id)")
         } else {
-          ScrollView {
+          ScrollView(showsIndicators: false) {
             Text(item.previewText.string)
               .font(.body)
               .frame(maxWidth: .infinity, alignment: .leading)
           }
+          .scrollIndicators(.hidden)
           .frame(maxWidth: .infinity)
         }
       }

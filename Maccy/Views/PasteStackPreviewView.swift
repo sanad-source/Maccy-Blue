@@ -21,7 +21,7 @@ struct PasteStackPreviewView: View {
   @State var pasteStackListHeight: CGFloat = 0
 
   var body: some View {
-    ScrollView {
+    ScrollView(showsIndicators: false) {
       LazyVStack(spacing: 0) {
         EnumeratedForEach(data: pasteStack.items) { (element, index) in
           PasteStackPreviewItemView(
@@ -37,6 +37,7 @@ struct PasteStackPreviewView: View {
       .padding(.vertical, Self.padding)
       .readHeight($pasteStackListHeight)
     }
+    .scrollIndicators(.hidden)
     .frame(maxHeight: pasteStackListHeight)
     .background(.fill.tertiary)
     .clipShape(SelectionAppearance.none.rect(cornerRadius: Popup.cornerRadius))

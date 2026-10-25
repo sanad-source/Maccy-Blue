@@ -98,7 +98,7 @@ struct HistoryListView: View {
     .padding(.top, topSeparatorVisible ? topPadding : 0)
     .readHeight(appState, into: \.popup.extraTopHeight)
 
-    ScrollView {
+    ScrollView(showsIndicators: false) {
       ScrollViewReader { proxy in
         MultipleSelectionListView(items: unpinnedItems) { previous, item, next, index in
           HistoryItemView(item: item, previous: previous, next: next, index: index)
@@ -163,6 +163,7 @@ struct HistoryListView: View {
       .contentMargins(.top, scrollTopPadding, for: .scrollIndicators)
       .contentMargins(.bottom, scrollBottomPadding, for: .scrollIndicators)
     }
+    .scrollIndicators(.hidden)
     .accessibilityIdentifier("history-scroll-view")
 
     VStack(spacing: 0) {
