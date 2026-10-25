@@ -35,7 +35,7 @@
 	<key>SUEnableInstallerLauncherService</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://raw.githubusercontent.com/p0deje/Maccy/master/appcast.xml</string>
+	<string>https://raw.githubusercontent.com/sanad-source/Maccy-Blue/master/appcast.xml</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 	<dict>
