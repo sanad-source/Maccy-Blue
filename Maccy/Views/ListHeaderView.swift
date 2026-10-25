@@ -47,7 +47,7 @@ struct ListHeaderView: View {
     }
     .contentShape(Rectangle())
     .onTapGesture(count: 2) {
-      appState.showContextMenu()
+      appState.showContextMenu(inHeader: true)
     }
     .contextMenu {
       Button {

@@ -181,10 +181,73 @@ class AppState: Sendable {
   }
 
   @MainActor
-  func showContextMenu(at screenPoint: NSPoint? = nil) {
+  func showContextMenu(at screenPoint: NSPoint? = nil, inHeader: Bool = false) {
     let menu = NSMenu(title: "Maccy")
+    var targets: [Any] = []
+
+    if !inHeader,
+       let selectedId = navigator.leadSelection,
+       let item = history.items.first(where: { $0.id == selectedId }) {
+      let pasteTarget = MenuActionTarget { [weak self] in
+        self?.history.select(item)
+      }
+      targets.append(pasteTarget)
+      let pasteItem = NSMenuItem(
+        title: NSLocalizedString("history_item_paste_action", value: "Paste", comment: ""),
+        action: #selector(MenuActionTarget.trigger),
+        keyEquivalent: "\r"
+      )
+      pasteItem.target = pasteTarget
+      menu.addItem(pasteItem)
+
+      let copyTarget = MenuActionTarget { [weak self] in
+        self?.popup.close()
+        Clipboard.shared.copy(item.item)
+      }
+      targets.append(copyTarget)
+      let copyItem = NSMenuItem(
+        title: NSLocalizedString("history_item_copy_action", value: "Copy", comment: ""),
+        action: #selector(MenuActionTarget.trigger),
+        keyEquivalent: "c"
+      )
+      copyItem.target = copyTarget
+      copyItem.keyEquivalentModifierMask = [.command]
+      menu.addItem(copyItem)
+
+      let pinTarget = MenuActionTarget { [weak self] in
+        self?.history.togglePin(item)
+      }
+      targets.append(pinTarget)
+      let pinTitle = item.isPinned ?
+        NSLocalizedString("history_item_unpin_action", comment: "") :
+        NSLocalizedString("history_item_pin_action", comment: "")
+      let pinItem = NSMenuItem(
+        title: pinTitle,
+        action: #selector(MenuActionTarget.trigger),
+        keyEquivalent: "p"
+      )
+      pinItem.target = pinTarget
+      pinItem.keyEquivalentModifierMask = [.option]
+      menu.addItem(pinItem)
+
+      let deleteTarget = MenuActionTarget { [weak self] in
+        self?.history.delete(item)
+      }
+      targets.append(deleteTarget)
+      let deleteItem = NSMenuItem(
+        title: NSLocalizedString("history_item_delete_action", comment: ""),
+        action: #selector(MenuActionTarget.trigger),
+        keyEquivalent: "\u{7f}"
+      )
+      deleteItem.target = deleteTarget
+      deleteItem.keyEquivalentModifierMask = [.option]
+      menu.addItem(deleteItem)
+
+      menu.addItem(NSMenuItem.separator())
+    }
 
     let prefsTarget = MenuActionTarget { [weak self] in self?.openPreferences() }
+    targets.append(prefsTarget)
     let prefsItem = NSMenuItem(
       title: NSLocalizedString("preferences", comment: ""),
       action: #selector(MenuActionTarget.trigger),
@@ -195,6 +258,7 @@ class AppState: Sendable {
     menu.addItem(prefsItem)
 
     let aboutTarget = MenuActionTarget { [weak self] in self?.openAbout() }
+    targets.append(aboutTarget)
     let aboutItem = NSMenuItem(
       title: NSLocalizedString("about", comment: ""),
       action: #selector(MenuActionTarget.trigger),
@@ -206,6 +270,7 @@ class AppState: Sendable {
     menu.addItem(NSMenuItem.separator())
 
     let quitTarget = MenuActionTarget { [weak self] in self?.quit() }
+    targets.append(quitTarget)
     let quitItem = NSMenuItem(
       title: NSLocalizedString("quit", comment: ""),
       action: #selector(MenuActionTarget.trigger),
@@ -215,7 +280,7 @@ class AppState: Sendable {
     quitItem.keyEquivalentModifierMask = [.command]
     menu.addItem(quitItem)
 
-    objc_setAssociatedObject(menu, "menuTargets", [prefsTarget, aboutTarget, quitTarget], .OBJC_ASSOCIATION_RETAIN)
+    objc_setAssociatedObject(menu, "menuTargets", targets, .OBJC_ASSOCIATION_RETAIN)
 
     let point = screenPoint ?? NSEvent.mouseLocation
     menu.popUp(positioning: nil, at: point, in: nil)

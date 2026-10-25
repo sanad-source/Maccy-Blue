@@ -189,7 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   @objc
   private func performStatusItemClick() {
     if NSApp.currentEvent?.clickCount == 2 {
-      AppState.shared.showContextMenu()
+      AppState.shared.showContextMenu(inHeader: true)
       return
     }
 

@@ -231,6 +231,15 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
   override var canBecomeKey: Bool {
     return true
   }
+
+  override func sendEvent(_ event: NSEvent) {
+    if event.type == .rightMouseDown || (event.type == .leftMouseDown && event.modifierFlags.contains(.control)) {
+      let isHeader = event.locationInWindow.y > (frame.height - max(AppState.shared.popup.headerHeight, 35))
+      AppState.shared.showContextMenu(at: NSEvent.mouseLocation, inHeader: isHeader)
+      return
+    }
+    super.sendEvent(event)
+  }
 }
 
 private struct FloatingPanelRootView<Content: View>: View {

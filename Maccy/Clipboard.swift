@@ -92,18 +92,19 @@ class Clipboard {
       contents = clearFormatting(contents)
     }
 
-    for content in contents {
-      guard content.type != NSPasteboard.PasteboardType.fileURL.rawValue else { continue }
-      pasteboard.setData(content.value, forType: NSPasteboard.PasteboardType(content.type))
-    }
-
-    // Ensure dual PNG + TIFF representation for image items so that both native Cocoa
-    // apps (Pages, Keynote) and modern Electron/web apps (Slack, Discord) can paste reliably.
+    // If item has image content, prioritize image representations so target applications
+    // (Slack, Discord, Pages, Apple Notes) receive and paste the image.
     if item.hasImageContent, let imgData = item.imageData {
       let hasPNG = contents.contains { NSPasteboard.PasteboardType($0.type) == .png }
       let hasTIFF = contents.contains { NSPasteboard.PasteboardType($0.type) == .tiff }
 
-      if (!hasTIFF || !hasPNG), let nsImage = NSImage(data: imgData) {
+      // Write existing image types first
+      for content in contents where StorageType.images.types.contains(NSPasteboard.PasteboardType(content.type)) {
+        pasteboard.setData(content.value, forType: NSPasteboard.PasteboardType(content.type))
+      }
+
+      // Synthesize missing TIFF or PNG representation for universal app compatibility
+      if (!hasTIFF || !hasPNG), let nsImage = item.image ?? NSImage(data: imgData) {
         if !hasTIFF, let tiff = nsImage.tiffRepresentation {
           pasteboard.setData(tiff, forType: .tiff)
         }
@@ -113,6 +114,14 @@ class Clipboard {
           pasteboard.setData(png, forType: .png)
         }
       }
+    }
+
+    // Write all non-image, non-fileURL types
+    for content in contents {
+      let type = NSPasteboard.PasteboardType(content.type)
+      guard type != .fileURL else { continue }
+      guard !StorageType.images.types.contains(type) else { continue }
+      pasteboard.setData(content.value, forType: type)
     }
 
     // Use writeObjects for file URLs so that multiple files that are copied actually work.
