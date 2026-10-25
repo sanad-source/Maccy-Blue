@@ -3,11 +3,11 @@
   <h1 align="center">Maccy Blue</h1>
   <p align="center"><strong>Fast, lightweight, native macOS clipboard manager.</strong></p>
   <p align="center">
-    <a href="https://github.com/sanad-source/Maccy-Blue"><img src="https://img.shields.io/badge/macOS-14.0%2B-007AFF?logo=apple&logoColor=white" alt="macOS 14+" /></a>
-    <a href="https://github.com/sanad-source/Maccy-Blue"><img src="https://img.shields.io/badge/Swift-6.0-F05138?logo=swift&logoColor=white" alt="Swift 6.0" /></a>
-    <a href="https://github.com/sanad-source/Maccy-Blue"><img src="https://img.shields.io/badge/Architecture-Universal-black" alt="Universal" /></a>
-    <a href="https://github.com/sanad-source/Maccy-Blue"><img src="https://img.shields.io/badge/RAM-Optimized-00A86B" alt="RAM Optimized" /></a>
-    <a href="https://github.com/sanad-source/Maccy-Blue"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT" /></a>
+    <img src="https://img.shields.io/badge/macOS-14.0%2B-007AFF?logo=apple&logoColor=white" alt="macOS 14+" />
+    <img src="https://img.shields.io/badge/Swift-6.0-F05138?logo=swift&logoColor=white" alt="Swift 6.0" />
+    <img src="https://img.shields.io/badge/Architecture-Universal-black" alt="Universal" />
+    <img src="https://img.shields.io/badge/RAM-Optimized-00A86B" alt="RAM Optimized" />
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT" />
     <a href="https://github.com/p0deje/Maccy"><img src="https://img.shields.io/badge/Fork%20of-p0deje%2FMaccy-8A2BE2" alt="Fork of Maccy" /></a>
   </p>
 </p>
