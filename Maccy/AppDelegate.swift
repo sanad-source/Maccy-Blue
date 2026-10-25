@@ -11,6 +11,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private lazy var statusItem: NSStatusItem = {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     statusItem.behavior = .removalAllowed
+    statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
     statusItem.button?.action = #selector(performStatusItemClick)
     statusItem.button?.image = Defaults[.menuIcon].image
     statusItem.button?.imagePosition = .imageLeft
@@ -129,7 +130,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       )
     }
 
-    statusItem.button?.menu = AppState.shared.buildContextMenu(inHeader: true)
+    NSEvent.addLocalMonitorForEvents(matching: [.rightMouseDown]) { [weak self] event in
+      guard let self = self,
+            let button = self.statusItem.button,
+            let window = button.window,
+            event.window == window else {
+        return event
+      }
+      if self.panel.isPresented {
+        self.panel.close()
+      }
+      AppState.shared.showContextMenu(inHeader: true)
+      return nil
+    }
 
     panel = FloatingPanel(
       contentRect: NSRect(origin: .zero, size: Defaults[.windowSize]),
@@ -205,7 +218,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc
   private func performStatusItemClick() {
-    let modifierFlags = (NSApp.currentEvent?.modifierFlags ?? [])
+    let event = NSApp.currentEvent
+    let isRightClick = event?.type == .rightMouseUp ||
+                       event?.type == .rightMouseDown ||
+                       (event?.modifierFlags.contains(.control) == true)
+
+    if isRightClick || event?.clickCount == 2 {
+      if panel.isPresented {
+        panel.close()
+      }
+      AppState.shared.showContextMenu(inHeader: true)
+      return
+    }
+
+    let modifierFlags = (event?.modifierFlags ?? [])
       .union(NSEvent.modifierFlags)
       .intersection(.deviceIndependentFlagsMask)
 
