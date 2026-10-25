@@ -8,7 +8,6 @@
     <img src="https://img.shields.io/badge/Architecture-Universal-black" alt="Universal" />
     <img src="https://img.shields.io/badge/RAM-Optimized-00A86B" alt="RAM Optimized" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT" />
-    <a href="https://github.com/p0deje/Maccy"><img src="https://img.shields.io/badge/Fork%20of-p0deje%2FMaccy-8A2BE2" alt="Fork of Maccy" /></a>
   </p>
 </p>
 
@@ -18,7 +17,7 @@
 
 ## Overview
 
-**Maccy Blue** is an optimized fork of [Maccy](https://maccy.app) focused on bulletproof clipboard image compatibility, zero-allocation memory management, and clean modern aesthetics.
+**Maccy Blue** is an optimized native macOS clipboard manager focused on bulletproof clipboard image compatibility, zero-allocation memory management, and clean modern aesthetics.
 
 ---
 
