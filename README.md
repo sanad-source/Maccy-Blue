@@ -1,20 +1,20 @@
 > [!WARNING]
 > **Beware of fake websites impersonating Maccy.** Malicious sites (such as `maccyapp.net` and `maccyapp.com`) distribute malware disguised as Maccy. [**maccy.app**](https://maccy.app) is the **only** official website.
 
-<img width="128px" src="https://maccy.app/img/maccy/Logo.png" alt="Logo" />
+<p align="center">
+  <img width="128px" src="./Designs/MaccyBlue.png" alt="Maccy Blue Logo" />
+</p>
 
-# [Maccy](https://maccy.app)
+# Maccy Blue
 
-[![Downloads](https://img.shields.io/github/downloads/p0deje/Maccy/total.svg)](https://github.com/p0deje/Maccy/releases/latest)
-[![Build Status](https://img.shields.io/bitrise/716921b669780314/master?token=3pMiCb5dpFzlO-7jTYtO3Q)](https://app.bitrise.io/app/716921b669780314)
-
-Maccy is a lightweight clipboard manager for macOS. It keeps the history of what you copy
-and lets you quickly navigate, search, and use previous clipboard contents.
-
-Maccy works on macOS Sonoma 14 or higher.
+Maccy Blue is a high-performance, optimized fork of [Maccy](https://maccy.app) for macOS (Sonoma 14+). It introduces critical clipboard image compatibility fixes, aggressive memory optimizations under heavy image workloads, and a refreshed visual identity featuring the iconic menu bar feather emblem.
 
 <!-- vim-markdown-toc GFM -->
 
+* [Improvements in Maccy Blue](#improvements-in-maccy-blue)
+  * [1. Universal Image Pasting](#1-universal-image-pasting)
+  * [2. Aggressive Memory & RAM Optimization](#2-aggressive-memory--ram-optimization)
+  * [3. Feather Emblem App Icon & Blue Branding](#3-feather-emblem-app-icon--blue-branding)
 * [Features](#features)
 * [Install](#install)
 * [Usage](#usage)
@@ -23,16 +23,26 @@ Maccy works on macOS Sonoma 14 or higher.
   * [Ignore Custom Copy Types](#ignore-custom-copy-types)
   * [Speed up Clipboard Check Interval](#speed-up-clipboard-check-interval)
 * [FAQ](#faq)
-  * [Why doesn't it paste when I select an item in history?](#why-doesnt-it-paste-when-i-select-an-item-in-history)
-  * [When assigning a hotkey to open Maccy, it says that this hotkey is already used in some system setting.](#when-assigning-a-hotkey-to-open-maccy-it-says-that-this-hotkey-is-already-used-in-some-system-setting)
-  * [How to restore hidden footer?](#how-to-restore-hidden-footer)
-  * [How to ignore copies from Universal Clipboard?](#how-to-ignore-copies-from-universal-clipboard)
-  * [My keyboard shortcut stopped working in password fields. How do I fix this?](#my-keyboard-shortcut-stopped-working-in-password-fields-how-do-i-fix-this)
-* [Translations](#translations)
-* [Motivation](#motivation)
 * [License](#license)
 
 <!-- vim-markdown-toc -->
+
+## Improvements in Maccy Blue
+
+### 1. Universal Image Pasting
+* **Dual-Representation Image Synthesis**: When pasting previously copied images, Maccy Blue synthesizes both `public.png` and `public.tiff` pasteboard representations. This resolves pasting failures across Apple native apps (Pages, Keynote, Notes) and Electron/Chromium apps (Slack, Discord, VS Code, Chrome).
+* **Multi-type Preservation**: Items copied from web browsers that bundle OCR/alt-text alongside image data retain their image payloads during formatting strip operations rather than dropping the image binary.
+
+### 2. Aggressive Memory & RAM Optimization
+* **Zero-Allocation Type Inspection**: Replaced eager `item.image != nil` checks during list decoration with `item.hasImageContent`, eliminating upfront bitmap decoding during search and scroll.
+* **Header-Only Metadata Extraction**: Image dimensions are parsed directly from ImageIO headers (`CGImageSourceCopyPropertiesAtIndex`) without allocating decoded pixel buffers.
+* **External Binary Offloading**: Stored image payloads use SwiftData `@Attribute(.externalStorage)`, keeping large binary blobs out of SQLite row caches.
+* **RAM Eviction on Popup Close**: Hooked popup dismissal (`reset()`) to call `History.shared.cleanupImages()`, aggressively freeing cached bitmap memory when the clipboard menu closes.
+
+### 3. Feather Emblem App Icon & Blue Branding
+* **Icon Modernization**: Replaced the legacy lightbulb icon with the menu bar feather/quill emblem on an Apple royal blue squircle across all 10 resolutions (16px to 1024px).
+* **Maccy Blue Status Bar Theme**: Added `.maccyBlue` status bar emblem with original template rendering support.
+
 
 ## Features
 
