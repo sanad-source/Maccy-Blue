@@ -301,6 +301,43 @@ extension SharedStateTests {
       #expect(Set(copied.contents.map(\.type)) == [stringType.rawValue])
     }
 
+    @Test("Copying image synthesizes both PNG and TIFF for universal app compatibility")
+    func copyingImageSynthesizesBothPNGAndTIFF() async throws {
+      let image = NSImage(size: NSSize(width: 10, height: 10), flipped: false) { rect in
+        NSColor.red.setFill()
+        rect.fill()
+        return true
+      }
+      let tiffData = try #require(image.tiffRepresentation)
+      let item = HistoryItem(contents: [
+        HistoryItemContent(type: NSPasteboard.PasteboardType.tiff.rawValue, value: tiffData)
+      ])
+
+      clipboard.copy(item)
+      let types = pasteboard.types ?? []
+      #expect(types.contains(.tiff))
+      #expect(types.contains(.png))
+    }
+
+    @Test("clearFormatting preserves image contents when item has text")
+    func clearFormattingPreservesImageContents() async throws {
+      let image = NSImage(size: NSSize(width: 10, height: 10), flipped: false) { rect in
+        NSColor.blue.setFill()
+        rect.fill()
+        return true
+      }
+      let tiffData = try #require(image.tiffRepresentation)
+      let item = HistoryItem(contents: [
+        HistoryItemContent(type: NSPasteboard.PasteboardType.tiff.rawValue, value: tiffData),
+        HistoryItemContent(type: NSPasteboard.PasteboardType.string.rawValue, value: "Alt text".data(using: .utf8))
+      ])
+
+      clipboard.copy(item, removeFormatting: true)
+      let types = pasteboard.types ?? []
+      #expect(types.contains(.tiff))
+      #expect(types.contains(.png))
+    }
+
     private func waitForCopies(expectingCopy: Bool = true, after trigger: () -> Void) async throws -> [HistoryItem] {
       var copies: [HistoryItem] = []
       clipboard.onNewCopy { copies.append($0) }

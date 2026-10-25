@@ -84,6 +84,7 @@ class Popup {
   func reset() {
     state = .toggle
     KeyboardShortcuts.enable(.popup)
+    AppState.shared.history.cleanupImages()
   }
 
   func close() {

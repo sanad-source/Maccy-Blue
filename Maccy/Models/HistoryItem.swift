@@ -174,6 +174,27 @@ class HistoryItem {
     return NSAttributedString(html: data, documentAttributes: nil)
   }
 
+  var hasImageContent: Bool {
+    return contents.contains { content in
+      Self.imageTypes.contains(NSPasteboard.PasteboardType(content.type))
+    } || universalClipboardImage
+  }
+
+  @MainActor
+  var imagePixelDimensions: NSSize? {
+    if let cached = cachedDecodedImage {
+      return cached.pixelSize
+    }
+    guard let data = imageData,
+          let source = CGImageSourceCreateWithData(data as CFData, nil),
+          let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+          let width = properties[kCGImagePropertyPixelWidth] as? CGFloat,
+          let height = properties[kCGImagePropertyPixelHeight] as? CGFloat else {
+      return nil
+    }
+    return NSSize(width: width, height: height)
+  }
+
   var imageData: Data? {
     var data: Data?
     data = contentData(Self.imageTypes)

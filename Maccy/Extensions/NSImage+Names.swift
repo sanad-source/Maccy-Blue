@@ -9,6 +9,7 @@ extension NSImage {
 }
 
 extension NSImage.Name {
+  static let maccyBlueStatusBar = NSImage.Name("StatusBarMaccyBlueImage")
   static let clipboard = NSImage.Name("clipboard.fill")
   static let maccyStatusBar = NSImage.Name("StatusBarMenuImage")
   static let scissors = NSImage.Name("scissors")

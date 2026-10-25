@@ -198,6 +198,28 @@ extension SharedStateTests {
       return item
     }
 
+    @Test("hasImageContent detects image without decoding bitmap")
+    func hasImageContentDoesNotDecodeImage() {
+      let image = textImage("Test")
+      let item = historyItem(image)
+      #expect(item.hasImageContent)
+      let decorator = HistoryItemDecorator(item)
+      #expect(decorator.hasImage)
+      #expect(item.imagePixelDimensions != nil)
+    }
+
+    @Test("cleanupImages clears memory caches")
+    func cleanupImagesClearsMemoryCaches() {
+      let image = textImage("Test")
+      let item = historyItem(image)
+      let decorator = HistoryItemDecorator(item)
+      _ = decorator.item.image
+      #expect(decorator.item.image != nil)
+      decorator.cleanupImages()
+      #expect(decorator.thumbnailImage == nil)
+      #expect(decorator.previewImage == nil)
+    }
+
     private func historyItem(_ value: NSImage) -> HistoryItem {
       let contents = [
         HistoryItemContent(

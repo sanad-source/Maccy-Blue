@@ -341,6 +341,13 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
   }
 
   @MainActor
+  func cleanupImages() {
+    for item in items {
+      item.cleanupImages()
+    }
+  }
+
+  @MainActor
   private func cleanup(_ item: HistoryItemDecorator) {
     item.cleanupImages()
   }

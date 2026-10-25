@@ -97,6 +97,24 @@ class Clipboard {
       pasteboard.setData(content.value, forType: NSPasteboard.PasteboardType(content.type))
     }
 
+    // Ensure dual PNG + TIFF representation for image items so that both native Cocoa
+    // apps (Pages, Keynote) and modern Electron/web apps (Slack, Discord) can paste reliably.
+    if item.hasImageContent, let imgData = item.imageData {
+      let hasPNG = contents.contains { NSPasteboard.PasteboardType($0.type) == .png }
+      let hasTIFF = contents.contains { NSPasteboard.PasteboardType($0.type) == .tiff }
+
+      if (!hasTIFF || !hasPNG), let nsImage = NSImage(data: imgData) {
+        if !hasTIFF, let tiff = nsImage.tiffRepresentation {
+          pasteboard.setData(tiff, forType: .tiff)
+        }
+        if !hasPNG, let tiff = nsImage.tiffRepresentation,
+           let bitmap = NSBitmapImageRep(data: tiff),
+           let png = bitmap.representation(using: .png, properties: [:]) {
+          pasteboard.setData(png, forType: .png)
+        }
+      }
+    }
+
     // Use writeObjects for file URLs so that multiple files that are copied actually work.
     // Only do this for file URLs because it causes an issue with some other data types (like formatted text)
     // where the item is pasted more than once.
@@ -107,7 +125,9 @@ class Clipboard {
       pasteItem.setData(value, forType: NSPasteboard.PasteboardType(item.type))
       return pasteItem
     }
-    pasteboard.writeObjects(fileURLItems)
+    if !fileURLItems.isEmpty {
+      pasteboard.writeObjects(fileURLItems)
+    }
 
     pasteboard.setString("", forType: .fromMaccy)
     pasteboard.setString(item.application ?? "", forType: .source)
@@ -310,6 +330,11 @@ class Clipboard {
   }
 
   private func clearFormatting(_ contents: [HistoryItemContent]) -> [HistoryItemContent] {
+    let imageTypeStrings = Set(StorageType.images.types.map(\.rawValue))
+    if contents.contains(where: { imageTypeStrings.contains($0.type) }) {
+      return contents
+    }
+
     var newContents: [HistoryItemContent] = contents
     let stringContents = contents.filter { NSPasteboard.PasteboardType($0.type) == .string }
 
