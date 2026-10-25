@@ -5,6 +5,7 @@ import SwiftUI
 // https://stackoverflow.com/questions/46023769/how-to-show-a-window-without-stealing-focus-on-macos
 class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
   var isPresented: Bool = false
+  var lastClosedAt: Date = .distantPast
   var statusBarButton: NSStatusBarButton?
   let onClose: () -> Void
 
@@ -217,6 +218,7 @@ class FloatingPanel<Content: View>: NSPanel, NSWindowDelegate {
 
   override func close() {
     super.close()
+    lastClosedAt = Date()
     let appState = AppState.shared
     appState.preview.state = .closed
     appState.isEditingItem = false

@@ -181,7 +181,7 @@ class AppState: Sendable {
   }
 
   @MainActor
-  func showContextMenu(at screenPoint: NSPoint? = nil, inHeader: Bool = false) {
+  func buildContextMenu(inHeader: Bool = false) -> NSMenu {
     let menu = NSMenu(title: "Maccy")
     var targets: [Any] = []
 
@@ -283,7 +283,12 @@ class AppState: Sendable {
     menu.addItem(quitItem)
 
     objc_setAssociatedObject(menu, "menuTargets", targets, .OBJC_ASSOCIATION_RETAIN)
+    return menu
+  }
 
+  @MainActor
+  func showContextMenu(at screenPoint: NSPoint? = nil, inHeader: Bool = false) {
+    let menu = buildContextMenu(inHeader: inHeader)
     let point = screenPoint ?? NSEvent.mouseLocation
     menu.popUp(positioning: nil, at: point, in: nil)
   }

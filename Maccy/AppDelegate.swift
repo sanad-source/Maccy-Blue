@@ -11,7 +11,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private lazy var statusItem: NSStatusItem = {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     statusItem.behavior = .removalAllowed
-    statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
     statusItem.button?.action = #selector(performStatusItemClick)
     statusItem.button?.image = Defaults[.menuIcon].image
     statusItem.button?.imagePosition = .imageLeft
@@ -37,6 +36,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private var statusItemVisibilityObserver: NSKeyValueObservation?
 
   func applicationWillFinishLaunching(_ notification: Notification) { // swiftlint:disable:this function_body_length
+    let bundleID = Bundle.main.bundleIdentifier ?? "org.p0deje.Maccy"
+    let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+    if runningApps.count > 1 && !Self.isTesting {
+      let otherApp = runningApps.first { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }
+      otherApp?.activate()
+      NSApp.terminate(nil)
+      return
+    }
+
     #if DEBUG
     if Self.isTesting {
       SPUUpdater(hostBundle: Bundle.main,
@@ -121,19 +129,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       )
     }
 
-    NSEvent.addLocalMonitorForEvents(matching: [.rightMouseDown]) { [weak self] event in
-      guard let self = self,
-            let button = self.statusItem.button,
-            let window = button.window,
-            event.window == window else {
-        return event
-      }
-      if self.panel.isPresented {
-        self.panel.close()
-      }
-      AppState.shared.showContextMenu(inHeader: true)
-      return nil
-    }
+    statusItem.button?.menu = AppState.shared.buildContextMenu(inHeader: true)
 
     panel = FloatingPanel(
       contentRect: NSRect(origin: .zero, size: Defaults[.windowSize]),
@@ -146,7 +142,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-    panel.toggle(height: AppState.shared.popup.height)
+    panel.toggle(height: AppState.shared.popup.height, at: .statusItem)
     return true
   }
 
@@ -209,27 +205,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc
   private func performStatusItemClick() {
-    let event = NSApp.currentEvent
-    let isRightClick = event?.type == .rightMouseUp ||
-                       event?.type == .rightMouseDown ||
-                       (event?.modifierFlags.contains(.control) == true)
-
-    if isRightClick {
-      if panel.isPresented {
-        panel.close()
-      }
-      AppState.shared.showContextMenu(inHeader: true)
-      return
-    }
-
-    if event?.clickCount == 2 {
-      if panel.isPresented {
-        panel.close()
-      }
-      AppState.shared.showContextMenu(inHeader: true)
-      return
-    }
-
     let modifierFlags = (NSApp.currentEvent?.modifierFlags ?? [])
       .union(NSEvent.modifierFlags)
       .intersection(.deviceIndependentFlagsMask)
@@ -241,6 +216,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Defaults[.ignoreOnlyNextEvent] = Defaults[.ignoreEvents]
       }
 
+      return
+    }
+
+    // Debounce toggle if panel just closed via outside click on status item
+    if Date().timeIntervalSince(panel.lastClosedAt) < 0.35 {
       return
     }
 
