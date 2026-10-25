@@ -267,7 +267,9 @@ class AppState: Sendable {
     aboutItem.target = aboutTarget
     menu.addItem(aboutItem)
 
-    menu.addItem(NSMenuItem.separator())
+    if !inHeader {
+      menu.addItem(NSMenuItem.separator())
+    }
 
     let quitTarget = MenuActionTarget { [weak self] in self?.quit() }
     targets.append(quitTarget)
