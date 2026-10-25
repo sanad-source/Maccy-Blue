@@ -1,7 +1,9 @@
+import Defaults
 import SwiftData
 import SwiftUI
 
 struct ContentView: View {
+  @Default(.showFooter) private var showFooter
   @State private var appState = AppState.shared
   @State private var modifierFlags = ModifierFlags()
   @State private var scenePhase: ScenePhase = .background
@@ -30,7 +32,9 @@ struct ContentView: View {
                 searchFocused: $searchFocused
               )
 
-              FooterView(footer: appState.footer)
+              if showFooter {
+                FooterView(footer: appState.footer)
+              }
             }
             .animation(.default.speed(3), value: appState.history.items)
             .animation(

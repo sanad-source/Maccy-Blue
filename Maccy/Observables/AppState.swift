@@ -179,4 +179,58 @@ class AppState: Sendable {
   func quit() {
     NSApp.terminate(self)
   }
+
+  @MainActor
+  func showContextMenu(at screenPoint: NSPoint? = nil) {
+    let menu = NSMenu(title: "Maccy")
+
+    let prefsTarget = MenuActionTarget { [weak self] in self?.openPreferences() }
+    let prefsItem = NSMenuItem(
+      title: NSLocalizedString("preferences", comment: ""),
+      action: #selector(MenuActionTarget.trigger),
+      keyEquivalent: ","
+    )
+    prefsItem.target = prefsTarget
+    prefsItem.keyEquivalentModifierMask = [.command]
+    menu.addItem(prefsItem)
+
+    let aboutTarget = MenuActionTarget { [weak self] in self?.openAbout() }
+    let aboutItem = NSMenuItem(
+      title: NSLocalizedString("about", comment: ""),
+      action: #selector(MenuActionTarget.trigger),
+      keyEquivalent: ""
+    )
+    aboutItem.target = aboutTarget
+    menu.addItem(aboutItem)
+
+    menu.addItem(NSMenuItem.separator())
+
+    let quitTarget = MenuActionTarget { [weak self] in self?.quit() }
+    let quitItem = NSMenuItem(
+      title: NSLocalizedString("quit", comment: ""),
+      action: #selector(MenuActionTarget.trigger),
+      keyEquivalent: "q"
+    )
+    quitItem.target = quitTarget
+    quitItem.keyEquivalentModifierMask = [.command]
+    menu.addItem(quitItem)
+
+    objc_setAssociatedObject(menu, "menuTargets", [prefsTarget, aboutTarget, quitTarget], .OBJC_ASSOCIATION_RETAIN)
+
+    let point = screenPoint ?? NSEvent.mouseLocation
+    menu.popUp(positioning: nil, at: point, in: nil)
+  }
+}
+
+final class MenuActionTarget: NSObject {
+  private let action: () -> Void
+
+  init(_ action: @escaping () -> Void) {
+    self.action = action
+    super.init()
+  }
+
+  @objc func trigger() {
+    action()
+  }
 }

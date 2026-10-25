@@ -78,10 +78,14 @@ struct ListItemView<Title: View, ID: Hashable>: View {
 
       if let image {
         Image(nsImage: image)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(maxHeight: CGFloat(Defaults[.imageMaxHeight]))
+          .cornerRadius(4)
           .accessibilityIdentifier("copy-history-item")
           .accessibilityHidden(true)
           .padding(.trailing, 5)
-          .padding(.vertical, 5)
+          .padding(.vertical, 3)
       } else {
         ListItemTitleView(attributedTitle: attributedTitle, title: title)
           .accessibilityHidden(true)

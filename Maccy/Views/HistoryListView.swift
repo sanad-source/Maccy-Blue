@@ -42,7 +42,7 @@ struct HistoryListView: View {
   private var bottomPadding: CGFloat {
     return showFooter
       ? Popup.verticalSeparatorPadding
-      : (Popup.verticalSeparatorPadding - 1)
+      : (Popup.verticalPadding + 2)
   }
 
   private func topSeparator() -> some View {
@@ -116,8 +116,22 @@ struct HistoryListView: View {
             appState.navigator.scrollTarget = nil
           }
         }
+        .onAppear {
+          for item in unpinnedItems.prefix(25) {
+            item.ensureThumbnailImage()
+          }
+          for item in pinnedItems {
+            item.ensureThumbnailImage()
+          }
+        }
         .onChange(of: scenePhase) {
           if scenePhase == .active {
+            for item in unpinnedItems.prefix(25) {
+              item.ensureThumbnailImage()
+            }
+            for item in pinnedItems {
+              item.ensureThumbnailImage()
+            }
             searchFocused = true
             appState.navigator.isKeyboardNavigating = true
             appState.navigator.select(item: appState.history.firstUnpinnedItem ?? appState.history.firstPinnedItem)

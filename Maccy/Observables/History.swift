@@ -217,6 +217,7 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
     } else {
       updateSearchResults()
     }
+    itemDecorator.ensureThumbnailImage()
     AppState.shared.popup.needsResize = true
     return itemDecorator
   }

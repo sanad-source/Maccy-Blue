@@ -110,6 +110,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     migrateUserDefaults()
     disableUnusedGlobalHotkeys()
 
+    if Defaults[.windowSize].width > 340 {
+      Defaults[.windowSize] = NSSize(width: 340, height: min(Defaults[.windowSize].height, 750))
+    }
+
     panel = FloatingPanel(
       contentRect: NSRect(origin: .zero, size: Defaults[.windowSize]),
       identifier: Bundle.main.bundleIdentifier ?? "org.p0deje.Maccy",
@@ -184,6 +188,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   @objc
   private func performStatusItemClick() {
+    if NSApp.currentEvent?.clickCount == 2 {
+      AppState.shared.showContextMenu()
+      return
+    }
+
     let modifierFlags = (NSApp.currentEvent?.modifierFlags ?? [])
       .union(NSEvent.modifierFlags)
       .intersection(.deviceIndependentFlagsMask)

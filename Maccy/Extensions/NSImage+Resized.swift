@@ -18,9 +18,9 @@ extension NSImage {
 
     let ratioX = newSize.width / size.width
     let ratioY = newSize.height / size.height
-    let ratio = ratioX < ratioY ? ratioX : ratioY
-    let newHeight = size.height * ratio
-    let newWidth = size.width * ratio
+    let ratio = min(ratioX, ratioY)
+    let newHeight = round(size.height * ratio)
+    let newWidth = round(size.width * ratio)
 
     guard newWidth > 0, newHeight > 0, newWidth.isFinite, newHeight.isFinite else {
       return self
@@ -28,18 +28,21 @@ extension NSImage {
 
     let targetSize = NSSize(width: newWidth, height: newHeight)
 
-    // Don't attempt to size up.
-    if targetSize.height >= size.height {
+    // Don't attempt to size up if both dimensions already fit.
+    if targetSize.height >= size.height && targetSize.width >= size.width {
       return self
     }
 
-    return NSImage(size: targetSize, flipped: false) { destRect in
-      if let context = NSGraphicsContext.current {
-        context.imageInterpolation = .high
-        self.draw(in: destRect, from: NSRect.zero, operation: .copy, fraction: 1)
-      }
-
-      return true
-    }
+    let newImage = NSImage(size: targetSize)
+    newImage.lockFocus()
+    NSGraphicsContext.current?.imageInterpolation = .high
+    self.draw(
+      in: NSRect(origin: .zero, size: targetSize),
+      from: NSRect.zero,
+      operation: .copy,
+      fraction: 1.0
+    )
+    newImage.unlockFocus()
+    return newImage
   }
 }

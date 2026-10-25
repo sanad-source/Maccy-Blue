@@ -44,6 +44,10 @@ struct HeaderView: View {
     .padding(.horizontal, 10)
     .animation(.default.speed(3), value: appState.navigator.leadSelection)
     .background(.clear)
+    .contentShape(Rectangle())
+    .onTapGesture(count: 2) {
+      appState.showContextMenu()
+    }
     .frame(maxHeight: !appState.searchVisible ? 0 : nil, alignment: .top)
     .readHeight(appState, into: \.popup.headerHeight)
   }
