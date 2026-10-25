@@ -12,19 +12,28 @@ extension NSImage {
     return size
   }
   func resized(to newSize: NSSize) -> NSImage {
+    guard size.width > 0, size.height > 0, newSize.width > 0, newSize.height > 0 else {
+      return self
+    }
+
     let ratioX = newSize.width / size.width
     let ratioY = newSize.height / size.height
     let ratio = ratioX < ratioY ? ratioX : ratioY
     let newHeight = size.height * ratio
     let newWidth = size.width * ratio
-    let newSize = NSSize(width: newWidth, height: newHeight)
 
-    // Don't attempt to size up.
-    if newSize.height >= size.height {
+    guard newWidth > 0, newHeight > 0, newWidth.isFinite, newHeight.isFinite else {
       return self
     }
 
-    return NSImage(size: newSize, flipped: false) { destRect in
+    let targetSize = NSSize(width: newWidth, height: newHeight)
+
+    // Don't attempt to size up.
+    if targetSize.height >= size.height {
+      return self
+    }
+
+    return NSImage(size: targetSize, flipped: false) { destRect in
       if let context = NSGraphicsContext.current {
         context.imageInterpolation = .high
         self.draw(in: destRect, from: NSRect.zero, operation: .copy, fraction: 1)

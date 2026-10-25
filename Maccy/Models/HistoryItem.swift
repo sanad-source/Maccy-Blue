@@ -226,8 +226,11 @@ class HistoryItem {
     return NSAttributedString(rtf: data, documentAttributes: nil)
   }
 
+  var hasCachedDecodedImage: Bool {
+    cachedDecodedImage != nil
+  }
+
   func clearDecodedImageCache() {
-    cachedDecodedImage?.recache()
     cachedDecodedImage = nil
   }
 

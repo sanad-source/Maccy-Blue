@@ -1,10 +1,13 @@
 import AppKit.NSPasteboard
 import Foundation
+import Logging
 import SwiftData
 
 @MainActor
 class Storage {
   static let shared = Storage()
+
+  private let logger = Logger(label: "org.p0deje.Maccy")
 
   var container: ModelContainer
   var context: ModelContext { container.mainContext }
@@ -30,7 +33,16 @@ class Storage {
     do {
       container = try ModelContainer(for: HistoryItem.self, configurations: config)
     } catch let error {
-      fatalError("Cannot load database: \(error.localizedDescription).")
+      logger.error("Failed to load database: \(error.localizedDescription), attempting recovery")
+      let backupUrl = url.deletingPathExtension().appendingPathExtension("sqlite.recovery-\(Date.now.timeIntervalSince1970)")
+      try? FileManager.default.moveItem(at: url, to: backupUrl)
+      try? FileManager.default.removeItem(at: url.deletingPathExtension().appendingPathExtension("sqlite-shm"))
+      try? FileManager.default.removeItem(at: url.deletingPathExtension().appendingPathExtension("sqlite-wal"))
+      do {
+        container = try ModelContainer(for: HistoryItem.self, configurations: config)
+      } catch {
+        fatalError("Cannot load or recover database: \(error.localizedDescription).")
+      }
     }
   }
 

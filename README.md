@@ -40,9 +40,9 @@
 - **Problem**: Querying image dimensions in upstream required instantiating the full bitmap in memory.
 - **Benefit**: Reads image width and height directly from file headers via ImageIO (`CGImageSourceCopyPropertiesAtIndex`) in microseconds with zero pixel buffer allocation.
 
-### 5. External SQLite Offloading (`@Attribute(.externalStorage)`)
-- **Problem**: Upstream stored large image blobs inline inside the SQLite database, causing SQLite page caches to blow up RAM during text history queries.
-- **Benefit**: Stores image binaries outside SQLite tables on disk. Keeps SQLite pages compact, speeding up text queries and app launch time.
+### 5. Resilient Database Engine & Fault Recovery
+- **Problem**: Upstream Maccy crashed with unrecoverable `fatalError` whenever SQLite schema or store loading failed.
+- **Benefit**: Automatic database fault recovery. Detects store issues on startup, backs up the database safely, and reinitializes with zero user-facing crash.
 
 ### 6. Popup Dismissal RAM Eviction (`cleanupImages()`)
 - **Problem**: Decoded thumbnail bitmaps accumulated in memory and lingered indefinitely after the menu was closed.

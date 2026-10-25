@@ -165,12 +165,14 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
     return previewImage
   }
 
+  var hasCachedImages: Bool {
+    thumbnailImage != nil || previewImage != nil || item.hasCachedDecodedImage
+  }
+
   @MainActor
   func cleanupImages() {
     thumbnailImageGenerationTask?.cancel()
     previewImageGenerationTask?.cancel()
-    thumbnailImage?.recache()
-    previewImage?.recache()
     thumbnailImage = nil
     previewImage = nil
     item.clearDecodedImageCache()

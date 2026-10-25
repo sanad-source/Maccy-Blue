@@ -342,7 +342,7 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
 
   @MainActor
   func cleanupImages() {
-    for item in items {
+    for item in items where item.hasCachedImages {
       item.cleanupImages()
     }
   }
