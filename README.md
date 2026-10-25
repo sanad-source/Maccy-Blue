@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img src="./Designs/Preview.png" width="680" alt="Maccy Blue Preview" />
+  <img src="./Designs/MaccyBlue-Preview.png" width="680" alt="Maccy Blue Interface Preview" />
 </p>
 
 ## Overview
