@@ -31,10 +31,6 @@ struct ContentView: View {
                 searchQuery: $appState.history.searchQuery,
                 searchFocused: $searchFocused
               )
-
-              if showFooter {
-                FooterView(footer: appState.footer)
-              }
             }
             .animation(.default.speed(3), value: appState.history.items)
             .animation(

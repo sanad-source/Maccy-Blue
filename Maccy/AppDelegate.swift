@@ -111,6 +111,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     migrateUserDefaults()
     disableUnusedGlobalHotkeys()
 
+    Defaults[.showTitle] = false
+    Defaults[.showFooter] = false
+
     if Defaults[.windowSize].width > 340 || Defaults[.windowSize].height > 375 {
       Defaults[.windowSize] = NSSize(
         width: min(Defaults[.windowSize].width, 340),
